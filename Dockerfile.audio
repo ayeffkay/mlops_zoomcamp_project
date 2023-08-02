@@ -1,0 +1,11 @@
+FROM python:3.9.13-slim
+RUN apt-get update && apt-get install -y ffmpeg
+RUN pip install -U pip & pip install pipenv
+COPY [ "./Pipfile", "./Pipfile.lock", "/tmp/" ]
+
+RUN cd /tmp && pipenv install --system --deploy
+RUN export $(xargs <./docker_env/audio_processor.env)
+ENV PREFECT_KEY=pnu
+ENV PREFECT_WORKSPACE=
+RUN prefect cloud login --key ${PREFECT_KEY} --workspace ${PREFECT_WORKSPACE}
+ENTRYPOINT prefect agent start --pool mlops-zoomcamp

@@ -80,6 +80,8 @@ class Trainer:
         self.tracking_uri = tracking_uri
         self.experiment_name = experiment_name
 
+        self.experiment = mlflow.set_experiment(self.experiment_name)
+
     @staticmethod
     def concat_features_with_target(np_data: List[np.ndarray]) -> np.ndarray:
         return np.hstack((np_data[0], np_data[1].reshape(-1, 1)))
@@ -176,9 +178,6 @@ class Trainer:
     # @task(name="tune_hyperparams", tags=["training"])
     def tune_hyperparams(self):
         current_experiment = mlflow.get_experiment_by_name(self.experiment_name)
-        if current_experiment is None:
-            current_experiment = mlflow.create_experiment(self.experiment_name)
-            current_experiment = mlflow.get_experiment_by_name(self.experiment_name)
         experiment_id = current_experiment.experiment_id
 
         mlflc = MLflowCallback(
@@ -277,17 +276,17 @@ class Trainer:
 
 
 if __name__ == "__main__":
-    local_tracking_uri = "http://127.0.0.1:5001"
+    local_tracking_uri = "http://mlflow:5001"
     trainer_1 = Trainer(
         tracking_uri=local_tracking_uri,
         experiment_name="xgboost",
         clf_training_func_name="run_xgboost_training",
-        train_data="src/data/train.pkl",
-        val_data="src/data/val.pkl",
-        test_data="src/data/test.pkl",
+        train_data="/data/processed/train.pkl",
+        val_data="/data/processed/val.pkl",
+        test_data="/data/processed/test.pkl",
         target_column_name="genre",
-        target_encoder="src/data/target_encoder.pkl",
-        features_names="src/data/feature_names.pkl",
+        target_encoder="/data/processed/target_encoder.pkl",
+        features_names="/data/processed/feature_names.pkl",
         metric_name="accuracy_score",
     )
     trainer_1()
@@ -296,16 +295,19 @@ if __name__ == "__main__":
         tracking_uri=local_tracking_uri,
         experiment_name="random_forest",
         clf_training_func_name="run_random_forest_training",
-        train_data="src/data/train.pkl",
-        val_data="src/data/val.pkl",
-        test_data="src/data/test.pkl",
+        train_data="/data/processed/train.pkl",
+        val_data="/data/processed/val.pkl",
+        test_data="/data/processed/test.pkl",
         target_column_name="genre",
-        target_encoder="src/data/target_encoder.pkl",
-        features_names="src/data/feature_names.pkl",
+        target_encoder="/data/processed/target_encoder.pkl",
+        features_names="/data/processed/feature_names.pkl",
         metric_name="accuracy_score",
     )
     trainer_2()
 
     register_best_model(
-        ["random_forest", "xgboost"], "best_model", "test_accuracy_score"
+        local_tracking_uri,
+        ["random_forest", "xgboost"],
+        "best_model",
+        "test_accuracy_score",
     )

@@ -1,0 +1,5 @@
+FROM ghcr.io/mlflow/mlflow:v2.5.0
+EXPOSE 5001
+RUN apt update && apt install -y gcc libpq-dev
+RUN pip install --upgrade pip && pip install awscli psycopg2==2.8.5
+RUN export $(xargs <./docker_env/aws_credentials.env)

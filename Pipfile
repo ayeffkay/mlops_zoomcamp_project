@@ -236,9 +236,13 @@ werkzeug = "==2.3.6"
 xgboost = "==1.7.6"
 zict = "==3.0.0"
 zipp = "==3.16.2"
+isort = "*"
+black = "*"
+pylint = "*"
 
 [dev-packages]
 pre-commit = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.9"

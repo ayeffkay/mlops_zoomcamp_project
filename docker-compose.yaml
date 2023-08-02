@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    env_file:
+      - ./docker_env/aws_credentials.env
+      - ./docker_env/localstack.env
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  db:
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mlflow_db
+    ports:
+      - "5432:5432"
+  mlflow:
+    depends_on:
+      - localstack
+      - db
+    container_name: mlflow
+    image: mlflow:v1.0.0
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.mlflow
+    expose:
+      - "5001"
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./docker_env/aws_credentials.env
+    command: sh -c "aws --endpoint-url=http://localstack:4566 s3 mb s3://audioprocessor && 
+                    mlflow ui --backend-store-uri 'postgresql+psycopg2://postgres:postgres@db:5432/mlflow_db' --default-artifact-root s3://audioprocessor --host 0.0.0.0:5001 --no-serve-artifacts"
+  audio_processor:
+    depends_on:
+      - localstack
+      - db 
+      - mlflow
+    container_name: audio_processor
+    image: audio_processor:v1.0.0
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.audio
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./docker_env/aws_credentials.env
+      - ./docker_env/audio_processor.env
+    working_dir: /src
+    volumes:
+      - "./src:/src"
+      - "./data/raw/genres_original_subset:/data/raw/train_valid"
+      - "./data/raw/genres_original_eval:/data/raw/test"
