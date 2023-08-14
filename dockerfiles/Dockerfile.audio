@@ -1,0 +1,9 @@
+FROM python:3.8.10-slim
+RUN apt-get update && apt-get install -y ffmpeg make ca-certificates curl gnupg
+RUN pip install -U pip & pip install pipenv
+COPY [ "../Pipfile", "../Pipfile.lock", "/tmp/" ]
+RUN cd /tmp && pipenv install --system --deploy
+ENV PREFECT_KEY=""
+ENV PREFECT_WORKSPACE=""
+ENV PREFECT_POOL=mlops-zoomcamp
+RUN prefect cloud login --key ${PREFECT_KEY} --workspace ${PREFECT_WORKSPACE}

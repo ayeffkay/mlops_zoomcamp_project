@@ -1,8 +1,9 @@
 import os
-from typing import Tuple
+from typing import Any, Optional, Tuple
 
 import librosa
 import numpy as np
+import soundfile as sf
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
 
@@ -11,8 +12,8 @@ class Audio:
     def __init__(
         self,
         audio_file: str,
-        sr: int = 22050,
-        begin_offset: float = 10.0,
+        sr: Optional[float] = None,
+        begin_offset: float = 0.0,
         duration: float = 30.0,
         frame_length: int = 2048,
         hop_length: int = 512,
@@ -25,19 +26,19 @@ class Audio:
         self.frame_length = frame_length
         self.hop_length = hop_length
         self.n_mfcc = n_mfcc
-        self.genre = __class__.extract_genre(audio_file)
+        self.genre = Audio.extract_genre(audio_file)
         self.audio = self.run_loading_pipeline()
 
     @staticmethod
     def extract_genre(file_name: str) -> str:
-        return os.path.split(file_name)[-1].split(".")[0].split("_")[0]
+        return os.path.basename(file_name).split(".")[0]
 
     @property
     def sampling_rate(self):
         return self._sampling_rate
 
     @sampling_rate.setter
-    def sampling_rate(self, new_sampling_rate: int):
+    def sampling_rate(self, new_sampling_rate: float):
         if self._sampling_rate is not None:
             self.audio = librosa.resample(
                 self.audio, orig_sr=self._sampling_rate, target_sr=new_sampling_rate
@@ -50,19 +51,19 @@ class Audio:
 
     @staticmethod
     def generate_file_name_with_new_ext(file: str, extension: str) -> str:
-        filename = __class__.extract_file_name(file)
+        filename = Audio.extract_file_name(file)
         return "".join((filename, extension))
 
     @staticmethod
     def mp4_to_mp3(video_file: str) -> str:
-        dst_path = __class__.generate_file_name_with_new_ext(video_file, ".mp3")
+        dst_path = Audio.generate_file_name_with_new_ext(video_file, ".mp3")
         video = VideoFileClip(video_file)
         video.audio.write_audiofile(dst_path)
         return dst_path
 
     @staticmethod
     def mp3_to_wav(audio_file: str) -> str:
-        dst_path = __class__.generate_file_name_with_new_ext(audio_file, ".wav")
+        dst_path = Audio.generate_file_name_with_new_ext(audio_file, ".wav")
         audio = AudioSegment.from_mp3(audio_file)
         audio.export(dst_path, format="wav")
         return dst_path
@@ -70,25 +71,25 @@ class Audio:
     @staticmethod
     def load_wav(
         audio_file: str,
-        sr: int,
-        begin_offset: float = 5.0,
+        sr: Optional[float] = None,
+        begin_offset: float = 0.0,
         duration: float = 30.0,
-    ) -> Tuple[np.ndarray, int]:
+    ) -> Tuple[np.ndarray, float]:
         y, sr = librosa.load(audio_file, sr=sr, offset=begin_offset, duration=duration)
         y, _ = librosa.effects.trim(y)
         return y, sr
 
-    def run_loading_pipeline(self) -> np.ndarray:
+    def run_loading_pipeline(self) -> Any:
         file_ext = os.path.splitext(self.audio_file)[1]
         if file_ext == ".mp4":
-            self.audio_file = __class__.mp4_to_mp3(self.audio_file)
+            self.audio_file = Audio.mp4_to_mp3(self.audio_file)
             file_ext = ".mp3"
         if file_ext == ".mp3":
-            self.audio_file = __class__.mp3_to_wav(self.audio_file)
+            self.audio_file = Audio.mp3_to_wav(self.audio_file)
             file_ext = ".wav"
         if file_ext == ".wav":
             try:
-                audio, sr = __class__.load_wav(
+                audio, sr = Audio.load_wav(
                     self.audio_file,
                     self.sampling_rate,
                     self.begin_offset,
@@ -105,7 +106,7 @@ class Audio:
     def load_audio(
         cls,
         audio_file: str,
-        sr: int = 22050,
+        sr: float = 22050,
         begin_offset: float = 0.0,
         duration: float = 30.0,
         frame_length: int = 2048,
@@ -113,12 +114,27 @@ class Audio:
         n_mfcc: int = 13,
     ):
         audio = cls(
-            audio_file,
-            sr,
-            begin_offset,
-            duration,
-            frame_length,
-            hop_length,
-            n_mfcc,
+            audio_file, sr, begin_offset, duration, frame_length, hop_length, n_mfcc
         )
         return audio
+
+
+def crop_record_random(
+    file: str,
+    duration: int = 120,
+    start_end_offset: int = 5,
+    n_parts: int = 1,
+):
+    audio = Audio(file, begin_offset=start_end_offset, duration=duration)
+    y = audio.audio
+    sr = audio.sampling_rate
+    duration_secs = int(librosa.get_duration(y=y, sr=sr))
+    start_points = np.random.random_integers(
+        low=start_end_offset,
+        high=duration_secs - start_end_offset - duration,
+        size=n_parts,
+    )
+    y_splitted = [y[start * sr : (start + duration) * sr] for start in start_points]
+    for y_spl in y_splitted:
+        audio_name = f"{os.path.splitext(file)[0]}_cut.wav"
+        sf.write(audio_name, y_spl, sr, "PCM_24")

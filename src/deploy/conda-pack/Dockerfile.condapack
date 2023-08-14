@@ -1,0 +1,15 @@
+FROM continuumio/miniconda3:23.3.1-0 AS build-stage
+
+WORKDIR /tmp
+COPY conda.yaml .
+
+ENV MODEL_ENV_NAME="triton_env"
+ENV OUTPUT_DIR="../triton_models"
+ENV PYTHONNOUSERSITE=True
+RUN conda install conda=23.7.2 \
+    && conda env create -f conda.yaml \
+    && conda init bash && . /root/.bashrc && conda activate ${MODEL_ENV_NAME} \
+    && conda-pack --name ${MODEL_ENV_NAME} --output "conda-pack.tar.gz"
+
+FROM scratch AS export-stage
+COPY --from=build-stage "/tmp/conda-pack.tar.gz" ${OUTPUT_DIR}

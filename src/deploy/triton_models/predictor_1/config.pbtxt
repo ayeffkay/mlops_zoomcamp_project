@@ -1,0 +1,49 @@
+name: "predictor_1"
+backend: "python"
+max_batch_size: 16
+
+input [
+  {
+    name: "FEATURES"
+    data_type: TYPE_FP32
+    dims: [ 37 ]
+  },
+  {
+    name: "FILENAMES"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+output [
+  {
+    name: "LABELS"
+    data_type: TYPE_INT64
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+
+instance_group [{ count: 1 kind: KIND_CPU }]
+parameters: [
+  {
+    key: "input_names"
+    value: {
+      string_value: "FEATURES FILENAMES"
+    }
+  },
+  {
+    key: "output_name"
+    value: {
+      string_value: "LABELS"
+    }
+  },
+  {
+    key: "reserve_model_name"
+    value: {string_value: "predictor_2"}
+  },
+  {
+    key: "EXECUTION_ENV_PATH",
+    value: {string_value: "/models/conda-pack.tar.gz"}
+  }
+]

@@ -1,0 +1,52 @@
+name: "pre_processor_1"
+backend: "python"
+max_batch_size: 16
+
+input [
+  {
+    name: "INPUT0"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+output [
+  {
+    name: "FEATURES"
+    data_type: TYPE_FP32
+    dims: [ 37 ]
+  },
+  {
+    name: "FILENAMES"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+
+instance_group [{ count: 1 kind: KIND_CPU }]
+
+parameters: [
+  {
+    key: "input_name",
+    value: {
+      string_value: "INPUT0"
+    }
+  },
+  {
+    key: "output_names",
+    value: {
+      string_value: "FEATURES FILENAMES"
+    }
+  },
+  {
+    key: "audio_config_file",
+    value: {
+        string_value: "preprocessing/configs/audio_config.yaml"
+    }
+  },
+  {
+    key: "EXECUTION_ENV_PATH",
+    value: {string_value: "/models/conda-pack.tar.gz"}
+  }
+]

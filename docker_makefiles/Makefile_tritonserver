@@ -1,0 +1,4 @@
+make_buckets:
+	sh -c "/scripts/create_server_buckets.sh"
+start_triton_server:
+	tritonserver --model-repository=/models --allow-metrics=true

@@ -1,0 +1,46 @@
+name: "post_processor_1"
+backend: "python"
+max_batch_size: 16
+
+input [
+  {
+    name: "LABELS"
+    data_type: TYPE_INT64
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+output [
+  {
+    name: "OUTPUT0"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+  }
+]
+
+instance_group [{ count: 1 kind: KIND_CPU }]
+parameters: [
+  {
+    key: "input_name"
+    value: {
+      string_value: "LABELS"
+    }
+  },
+  {
+    key: "output_name"
+    value: {
+      string_value: "OUTPUT0"
+    }
+  },
+  {
+    key: "target_encoder_file"
+    value: {
+      string_value: "target_encoder.pkl"
+    }
+  },
+  {
+    key: "EXECUTION_ENV_PATH",
+    value: {string_value: "/models/conda-pack.tar.gz"}
+  }
+]

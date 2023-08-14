@@ -1,0 +1,12 @@
+run_client_eval:
+	python client.py --url audioprocessor_server:8001 \
+					--model_name ensemble_1 \
+					--model_input_name INPUT0 \
+					--model_output_name OUTPUT0 \
+					--audio_files_names "/data/raw/blues/blues.0000.wav;/data/raw/classical/classical.0000.wav;/data/raw/hiphop/hiphop.0000.wav;/data/raw/metal/metal.0000.wav"
+run_client_random:
+	python client.py --url audioprocessor_server:8001 \
+					--model_name ensemble_1 \
+					--model_input_name INPUT0 \
+					--model_output_name OUTPUT0 \
+					--audio_files_names "/data/random/0.wav;/data/random/1.wav;/data/random/2.wav;/data/random/3.wav;/data/random/4.wav"

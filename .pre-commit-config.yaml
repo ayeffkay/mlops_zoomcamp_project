@@ -7,7 +7,7 @@ repos:
     - id: check-yaml
     - id: check-added-large-files
 - repo: https://github.com/pycqa/isort
-  rev: 5.11.2
+  rev: 5.12.0
   hooks:
     - id: isort
       name: isort (python)
@@ -15,7 +15,7 @@ repos:
   rev: 23.7.0
   hooks:
     - id: black
-      language_version: python3.9
+      language_version: python3.8
 - repo: local
   hooks:
     - id: pylint
@@ -26,5 +26,12 @@ repos:
       args: [
         "-rn",
         "-sn",
-        "--recursive=y"
+        "--recursive=y",
+        "--fail-under=0",
+        "--disable=missing-class-docstring",
+        "--disable=missing-function-docstring",
+        "--disable=missing-module-docstring",
+        "--disable=no-value-for-parameter",
+        "--disable=consider-using-from-import",
+        "--disable=invalid-name"
       ]

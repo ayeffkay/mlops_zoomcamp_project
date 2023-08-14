@@ -1,0 +1,6 @@
+FROM nvcr.io/nvidia/tritonserver:23.01-py3
+
+RUN apt-get update && apt-get install -y ffmpeg
+RUN pip3 install --upgrade pip && pip3 install awscli==1.29.25 coloredlogs==15.0.1
+COPY ["../src/scripts/create_server_buckets.sh", "/scripts/"]
+RUN chmod +x "/scripts/create_server_buckets.sh"

@@ -1,0 +1,114 @@
+make_buckets:
+	chmod +x "scripts/create_data_buckets.sh"
+	sh -c "scripts/create_data_buckets.sh"
+unit_tests:
+	pytest --cov-report term --cov=src tests/
+put_raw_train_data_to_s3:
+	python preprocessing/put_data_to_s3.py --folder /data/raw/train_valid \
+										   --deployments_folder deployments \
+										   --mode train --bucket_type raw
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_RAW_DATA_BUCKET} --recursive | wc -l
+put_raw_train_subset_to_s3:
+	python preprocessing/put_data_to_s3.py --folder /data/raw/train_valid_subset \
+										   --deployments_folder deployments \
+										   --mode train_subset --bucket_type raw
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_RAW_DATA_BUCKET} --recursive | wc -l
+put_raw_test_data_to_s3:
+	python preprocessing/put_data_to_s3.py --folder /data/raw/test \
+										   --deployments_folder deployments \
+										   --mode test --bucket_type raw
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_RAW_DATA_BUCKET} --recursive | wc -l
+put_processed_data_to_s3:
+	python preprocessing/put_data_to_s3.py --folder /data/processed \
+										   --deployments_folder deployments \
+										   --mode features --bucket_type features
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
+preprocess_raw_train_data:
+	python preprocessing/preprocessing_workflows.py --input_folder /data/raw/train_valid \
+													--audio_config_file configs/audio_config.yaml \
+													--output_folder /data/processed --mode train \
+													--run_as_deployment --val_split_prop 0.1 \
+													--load_from_s3 \
+													--put_outputs_to_s3
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
+preprocess_raw_train_subset:
+	python preprocessing/preprocessing_workflows.py --input_folder /data/raw/train_valid_subset \
+													--audio_config_file configs/audio_config.yaml \
+													--output_folder /data/processed --mode train_subset \
+													--run_as_deployment \
+													--load_from_s3 \
+													--put_outputs_to_s3
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
+preprocess_raw_test_data:
+	python preprocessing/preprocessing_workflows.py --input_folder /data/raw/test \
+													--audio_config_file configs/audio_config.yaml \
+													--output_folder /data/processed --mode test --run_as_deployment \
+													--load_from_s3 \
+													--put_outputs_to_s3
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
+get_features_from_s3:
+	python preprocessing/get_data_from_s3.py --folder /data/processed \
+										   --deployments_folder deployments \
+										   --bucket_type features
+	ls /data/processed
+run_xgboost_training:
+	python training/training_workflows.py --tracking_uri ${BACKEND_STORE_URI} \
+										  --clf_training_func_name run_xgboost_training \
+										  --features_folder /data/processed \
+										  --load_from_s3 \
+										  --target_encoder_file target_encoder.pkl \
+										  --feature_names_file feature_names.pkl \
+										  --train_file_name train.pkl \
+										  --val_file_name val.pkl \
+										  --test_file_name test.pkl \
+										  --metric_name "imblearn.metrics:geometric_mean_score" \
+										  --target_column_name genre \
+										  --random_state 42 \
+										  --n_trials_for_hyperparams 20 \
+										  --deployments_folder deployments
+run_random_forest_training:
+	python training/training_workflows.py --tracking_uri ${BACKEND_STORE_URI} \
+										  --clf_training_func_name run_random_forest_training \
+										  --features_folder /data/processed \
+										  --load_from_s3 \
+										  --target_encoder_file target_encoder.pkl \
+										  --feature_names_file feature_names.pkl \
+										  --train_file_name train.pkl \
+										  --val_file_name val.pkl \
+										  --test_file_name test.pkl \
+										  --metric_name "imblearn.metrics:geometric_mean_score" \
+										  --target_column_name genre \
+										  --random_state 42 \
+										  --n_trials_for_hyperparams 30 \
+										  --deployments_folder deployments
+run_kneighbors_neighbors_classifier_training:
+	python training/training_workflows.py --tracking_uri ${BACKEND_STORE_URI} \
+										  --clf_training_func_name run_kneighbors_classifier_training \
+										  --features_folder /data/processed \
+										  --load_from_s3 \
+										  --target_encoder_file target_encoder.pkl \
+										  --feature_names_file feature_names.pkl \
+										  --train_file_name train.pkl \
+										  --val_file_name val.pkl \
+										  --test_file_name test.pkl \
+										  --metric_name "imblearn.metrics:geometric_mean_score" \
+										  --target_column_name genre \
+										  --random_state 42 \
+										  --n_trials_for_hyperparams 50 \
+										  --deployments_folder deployments
+register_best_model:
+	python register/register.py --tracking_uri ${BACKEND_STORE_URI} \
+								--registered_model_name best_model \
+								--select_by_metric_name val_geometric_mean_score \
+								--transit_to_stage Production \
+								--deployments_folder deployments \
+								--n_models 2
+make_copies:
+	cp /data/artifacts/1/model/model.pkl deploy/triton_models/predictor/1
+	cp /data/artifacts/2/model/model.pkl deploy/triton_models/predictor/2
+	cp /data/artifacts/1/model/target_encoder.pkl deploy/triton_models/post_processor/1
+get_artifacts_from_s3:
+	python preprocessing/get_data_from_s3.py --folder "" \
+										   --deployments_folder deployments \
+										   --bucket_type mlflow \
+										   --save_to "/data/artifacts"

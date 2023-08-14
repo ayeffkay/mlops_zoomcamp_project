@@ -1,16 +1,17 @@
 # mlops_zoomcamp_project
-==============================
 
 Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops-zoomcamp) hosted by DataTalksClub.
 
 **Disclaimer**: ML is very simple here cause the goal is to try MLOps tools, not to beat SOTA :) For now the project is not completed, certain parts may not work. Sorry for this, I hope to fix it during the second attempt.
 
+**WARNING** After code updates README is not actual now.
 <!-- TOC -->
 
 - [mlops\_zoomcamp\_project](#mlops_zoomcamp_project)
   - [Task description](#task-description)
   - [Dataset](#dataset)
   - [Approach](#approach)
+  - [Metric](#metric)
   - [Instructions](#instructions)
     - [Preparing environment](#preparing-environment)
     - [Feature extraction](#feature-extraction)
@@ -25,13 +26,18 @@ Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops
 
 <!-- /TOC -->
 
+
+![Coverage](.github/badges/jacoco.svg)
+
 ## Task description
 
 The task is to define music genre by wav record. I.e., at the input we get some record and musical genre (class) is predicted at the output. For this project the following genres were determined: `{blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, rock}`.
 
 ## Dataset
 
-For training and validation I took [GTZAN dataset](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification), this is sort of MNIST for sound. For testing some audio recordings were collected manually by myself (to discover data drift). I provided only part of the data, since audio features are generated for a long time (but you can download full version from kaggle or use your own audios - code is designed to work with `wav`, `mp3` and `mp4`). Note that data folder should have the following structure (or `.mp3`, `.mp4` instead of wav):
+For training and validation I took [GTZAN dataset](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification), this is sort of MNIST for sound. Then some genres were supplemented by data from [ISMIR dataset](https://www.upf.edu/web/mtg/ismir2004-genre).
+
+For testing some audio recordings were collected manually by myself (to discover data drift). I provided only part of the data in the repo because audio files take up a lot of disk space (but you can download full version from [here](https://drive.google.com/file/d/1sPptNqohrdEEvsABLGuTRmnFakVuk3SW/view?usp=sharing) or use your own audios - code is designed to work with `wav`, `mp3` and `mp4`). Note that data folder should have the following structure (or `.mp3`, `.mp4` instead of `.wav`):
 
 ```bash
     |some_name
@@ -43,17 +49,21 @@ For training and validation I took [GTZAN dataset](https://www.kaggle.com/datase
         --- | another_genre_name.xxxx.wav
 ```
 
-Part of the dataset is located in the [data/raw](data/raw) folder, extracted features from the whole dataset are located in the [src/data](src/data) folder.
+Part of the dataset is located in the [data/raw](data/raw) folder, extracted features from the whole dataset are located in the [data/processed](data/processed/) folder.
 
 ## Approach
 
-To make task more easy the first 30 seconds from each audio were taken and widely used audio features were extracted (mel-frequency cepstral coefficients, spectral bandwidth, root mean square energy, etc.). For each vectorized feature mean and variance were computed and then tree-based classifiers trained. As dataset is balanced (100 records per genre) accuracy metric is used. 
+This task can be considered as multiclass classification. To make things easier, 30 seconds were randomly selected from each audio and widely used audio features were extracted (mel-frequency cepstral coefficients, spectral bandwidth, root mean square energy, etc.). For each vectorized feature mean and variance were calculated and three types of classifiers trained (RandomForest, XGBoost and KNearestNeighbors).
+
+## Metric
+
+GTZAN dataset was balanced (100 records per genre), but after some classes have been supplemented with data from ISMIR, dataset was no longer balanced. So to measure model performance [G-Mean Score](http://glemaitre.github.io/imbalanced-learn/generated/imblearn.metrics.geometric_mean_score.html) was used.
 
 ## Instructions
 
 ### Preparing environment
 
-Prefect cloud is used to implement orchestation, so first you should register/login into [Prefect Cloud](https://app.prefect.cloud), [create workspace](https://app.prefect.cloud/workspaces/create), work pool with name [mlops-zoomcamp] inside workspace and finally [access key](https://app.prefect.cloud/my/api-keys) Then generated workspace and access key should be assigned to `ENV PREFECT_KEY=` and `ENV PREFECT_WORKSPACE` in [Dockerfile.audio](Dockerfile.audio).
+Prefect cloud is used to implement orchestation, so first you should register/login into [Prefect Cloud](https://app.prefect.cloud), [create workspace](https://app.prefect.cloud/workspaces/create), work pool with name `mlops-zoomcamp` inside workspace and finally [access key](https://app.prefect.cloud/my/api-keys) Then generated workspace and access key should be assigned to `ENV PREFECT_KEY` and `ENV PREFECT_WORKSPACE` in [Dockerfile.audio](dockerfiles/Dockerfile.audio) and [Dockerfile.tritonclient](dockerfiles/Dockerfile.tritonclient)
 
 After that all required services can be started via docker-compose:
 
@@ -61,10 +71,16 @@ After that all required services can be started via docker-compose:
     docker compose -f docker-compose.yaml up --build
 ```
 
-To run feature extraction and training, go inside audio_processor container:
+or via make
 
 ```bash
-    docker exec -it audio_processor bash
+    make build_and_up
+```
+
+To run feature extraction and training, go inside `audioprocessor_dev` container:
+
+```bash
+    docker exec -it audioprocessor_dev bash
 ```
 
 ### Feature extraction
@@ -95,7 +111,7 @@ To run training use:
 
 ### Experiment tracking and model registry
 
-Implemented locally via mlflow. See [training script](src/training/trainer.py) and [model registering scrip](src/training/register.py). 
+Implemented locally via mlflow. See [training script](src/training/trainer.py) and [model registering scrip](src/training/register.py).
 
 ### Workflow orchestration
 
