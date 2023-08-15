@@ -26,16 +26,17 @@ jobs:
     - name: build_conda_pack
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
       with:
-        context: src/deploy/conda-pack
-        file: src/deploy/conda-pack/Dockerfile.condapack
+        context: ./src/deploy/conda-pack
+        file: ./src/deploy/conda-pack/Dockerfile
         push: true
-        tags: conda_pack:develop
+        tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-    - name: upload_docker_image
-      uses: ishworkh/docker-image-artifact-upload@v2.0.1
+    - name: publish_models
+      uses: actions/upload-artifact@v3
       with:
-        image: ayeffkay/mlops_zoomcamp_project/conda_pack:develop
-        retention_days: "2"
+          name: triton_models
+          path: ./src/deploy/triton_models
+          retention_days: "2"
     - uses: actions/setup-python@v4
       with:
         python-version: '3.8.10'
