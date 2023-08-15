@@ -63,11 +63,9 @@ jobs:
     - name: get_codecov
       run: echo "COVERAGE=`jq .totals.percent_covered cov.json | cut -d. -f1`" >> $GITHUB_ENV
     - name: codecov_badge
-      uses: Schneegans/dynamic-badges-action@v1.6.0
+      uses: codecov/codecov-action@v3
       with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: c1336d0706263813a2eabbb344302bc1
-        filename: codecov_badge.json
-        label: Coverage
-        message: ${{ env.COVERAGE }}
-        color: "hsl(30, 100%, 40%)"
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true
