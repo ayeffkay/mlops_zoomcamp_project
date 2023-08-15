@@ -60,12 +60,12 @@ jobs:
           pip install -r requirements.txt
     - name: unit_tests
       run: make unit_tests
-    - name: get_codecov
-      run: echo "COVERAGE=`jq .totals.percent_covered cov.json | cut -d. -f1`" >> $GITHUB_ENV
-    - name: codecov_badge
+    - name: upload_codecov
       uses: codecov/codecov-action@v3
       with:
+        directory: ./coverage/reports/
+        env_vars: OS,PYTHON
+        fail_ci_if_error: true
         flags: unittests
         name: codecov-umbrella
-        fail_ci_if_error: false
         verbose: true

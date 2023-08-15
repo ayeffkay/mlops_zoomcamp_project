@@ -7,7 +7,7 @@ pre_commit:
 	pipenv install --dev pre-commit==3.3.3
 	pre-commit install
 unit_tests:
-	pytest --cov-report json:cov.json --cov=src tests/
+	pytest --cov=./src --cov-report=xml tests/
 quality_checks:
 	find ./src  -type f -name "*.py" -exec isort {} \;
 	find ./src  -type f -name "*.py" -exec black {} \;
