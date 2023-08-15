@@ -43,7 +43,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
           name: conda-pack
-          path: conda-pack.tar.gz
+          path: ./src/deploy/conda-pack.tar.gz
           retention-days: "2"
   run_unit_tests:
     runs-on: ubuntu-20.04
@@ -67,7 +67,7 @@ jobs:
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: c1336d0706263813a2eabbb344302bc1
-        filename: codecov.json
+        filename: codecov_badge.json
         label: Coverage
         message: ${{ env.COVERAGE }}
         color: "hsl(30, 100%, 40%)"
