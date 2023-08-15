@@ -24,7 +24,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
       with:
-        images: ayeffkay/mlops_zoomcamp_project/conda-pack
+        images: ayeffkay/mlops_zoomcamp_project
         tags: |
             type=ref,event=branch
             type=ref,event=pr

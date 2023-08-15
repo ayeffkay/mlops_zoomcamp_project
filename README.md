@@ -1,10 +1,12 @@
 # mlops_zoomcamp_project
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Codecov](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ayeffkay/c1336d0706263813a2eabbb344302bc1/raw/codecov.json)
+
 Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops-zoomcamp) hosted by DataTalksClub.
 
-**Disclaimer**: ML is very simple here cause the goal is to try MLOps tools, not to beat SOTA :) For now the project is not completed, certain parts may not work. Sorry for this, I hope to fix it during the second attempt.
+**Disclaimer**: ML is very simple here cause the goal is to try MLOps tools, not to beat SOTA :)
 
-**WARNING** After code updates README is outdated, I update it in couple of days.
 <!-- TOC -->
 
 - [mlops\_zoomcamp\_project](#mlops_zoomcamp_project)
@@ -27,8 +29,6 @@ Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops
     - [Best practices](#best-practices)
 
 <!-- /TOC -->
-
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ayeffkay/c1336d0706263813a2eabbb344302bc1/raw/codecov.json)
 
 ## Task description
 
