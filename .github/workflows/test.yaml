@@ -9,11 +9,38 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: docker_hub_login
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: extract_docker_metadata
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: ayeffkay/mlops_zoomcamp_project
+    - name: build_conda_pack
+      uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      with:
+        context: src/deploy/conda-pack
+        file: Dockerfile.condapack
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    - name: upload_docker_image
+      uses: ishworkh/docker-image-artifact-upload@v2.0.1
+      with:
+        image: ${{ steps.meta.outputs.tags }}
+        retention_days: "2"
     - uses: actions/setup-python@v4
       with:
         python-version: '3.8.10'
     - name: setup
-      run: make setup
+      run: pip install -r requirements.txt
     - name: unit_tests
       run: make unit_tests
     - name: get_codecov
