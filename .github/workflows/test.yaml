@@ -29,12 +29,12 @@ jobs:
         context: src/deploy/conda-pack
         file: src/deploy/conda-pack/Dockerfile.condapack
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: conda_pack:develop
         labels: ${{ steps.meta.outputs.labels }}
     - name: upload_docker_image
       uses: ishworkh/docker-image-artifact-upload@v2.0.1
       with:
-        image: ${{ steps.meta.outputs.tags }}
+        image: ayeffkay/mlops_zoomcamp_project/conda_pack:develop
         retention_days: "2"
     - uses: actions/setup-python@v4
       with:
