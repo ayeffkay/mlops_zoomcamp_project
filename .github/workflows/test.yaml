@@ -31,6 +31,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+            type=conda-pack
     - name: build_conda_pack
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
       with:
@@ -43,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
           name: conda-pack
-          path: ./src/deploy/triton_models/conda-pack.tar.gz
+          path: conda-pack.tar.gz
           retention-days: "2"
   run_unit_tests:
     runs-on: ubuntu-20.04
@@ -55,7 +56,9 @@ jobs:
       with:
         python-version: '3.8.10'
     - name: setup
-      run: pip install -r requirements.txt
+      run: |
+          pip install -r requirements.txt
+          apt-get install -y ffmpeg make ca-certificates curl gnupg
     - name: unit_tests
       run: make unit_tests
     - name: get_codecov
