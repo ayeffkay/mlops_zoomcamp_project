@@ -35,6 +35,7 @@ jobs:
             type=sha
     - name: build_conda_pack
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      id: conda
       with:
         context: src/deploy/conda-pack
         file: src/deploy/conda-pack/Dockerfile.condapack
@@ -47,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
           name: conda-pack
-          path: find . -type f -name 'conda-pack.tar.gz'
+          path: ${{ steps.conda.outputs.CONDA_FILE }}
           retention-days: "2"
   run_unit_tests:
     runs-on: ubuntu-20.04
