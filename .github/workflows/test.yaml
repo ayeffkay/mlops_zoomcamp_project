@@ -8,8 +8,6 @@ on:
 jobs:
   build_conda_pack:
     runs-on: ubuntu-20.04
-    outputs:
-      output1: ${{ steps.build_conda_pack.outputs.CONDA_FILE }}
     steps:
     - name: checkout
       uses: actions/checkout@v3
@@ -35,13 +33,14 @@ jobs:
             type=sha
     - name: build_conda_pack
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
-      id: conda
       with:
         context: src/deploy/conda-pack
         file: src/deploy/conda-pack/Dockerfile.condapack
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+    - name: find_conda_pack
+      id: conda
       run: |
         echo "CONDA_FILE=`find . -type f -name 'conda-pack.tar.gz'`" >> $GITHUB_OUTPUT
     - name: publish
