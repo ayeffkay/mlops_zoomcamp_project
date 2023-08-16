@@ -1,7 +1,7 @@
 # mlops_zoomcamp_project
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Codecov](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ayeffkay/c1336d0706263813a2eabbb344302bc1/raw/codecov.json)
+[![codecov](https://codecov.io/gh/ayeffkay/mlops_zoomcamp_project/graph/badge.svg?token=PDIYISF8JT)](https://codecov.io/gh/ayeffkay/mlops_zoomcamp_project)
 
 Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops-zoomcamp) hosted by DataTalksClub.
 
