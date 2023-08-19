@@ -32,12 +32,11 @@ jobs:
     - name: build_dev_image
       run: |
         docker compose -f docker-compose.yaml build audioprocessor_dev
-        docker push audioprocessor_dev:v1.0.0
+        docker tag audioprocessor_dev:v1.0.0 ayeffkay/mlops_zoomcamp_project:audioprocessor
   run_unit_tests:
-    needs: build_dev_image
     runs-on: ubuntu-20.04
     container:
-      image: audioprocessor_dev:v1.0.0
+      image: ayeffkay/mlops_zoomcamp_project:audioprocessor
       volumes:
         - src:/root/src
         - tests:/root/tests
