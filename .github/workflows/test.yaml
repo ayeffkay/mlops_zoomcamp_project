@@ -44,7 +44,6 @@ jobs:
     - name: unit_tests
       run: |
         pip install pytest pytest-cov
-        cd /root && pytest --cov=src --cov-report=xml tests
         echo pwd
         echo `ls src`
     - name: upload_coverage_reports
