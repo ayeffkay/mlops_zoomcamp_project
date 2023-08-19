@@ -38,10 +38,10 @@ jobs:
     runs-on: ubuntu-20.04
     container:
       image: audioprocessor_dev:v1.0.0
-    volumes:
-      - src:/root/src
-      - tests:/root/tests
-      - Makefile:/root/Makefile
+      volumes:
+        - src:/root/src
+        - tests:/root/tests
+        - Makefile:/root/Makefile
     steps:
     - name: setup
       run: |
