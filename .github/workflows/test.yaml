@@ -44,7 +44,9 @@ jobs:
     - name: unit_tests
       run: |
         pip install pytest pytest-cov
-        pytest --cov=/root/src --cov-report=xml /root/tests
+        cd /root && pytest --cov=src --cov-report=xml tests
+        echo pwd
+        echo `ls src`
     - name: upload_coverage_reports
       uses: codecov/codecov-action@v3
       env:
