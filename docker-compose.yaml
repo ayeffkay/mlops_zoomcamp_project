@@ -64,17 +64,20 @@ services:
       - ./docker_env/prefect.env
       - ./docker_env/mlflow.env
     working_dir: /root/src
-    entrypoint: prefect agent start --pool mlops-zoomcamp
+    entrypoint: tail -f /dev/null
     volumes:
       - "./src:/root/src"
+      - "./tests:/root/tests"
       - "./docker_makefiles/Makefile_audioprocessor:/root/src/Makefile"
       - "./data/raw/genres_original_subset:/data/raw/train_valid_subset"
       - "./data/raw/genres_original:/data/raw/train_valid"
       - "./data/raw/genres_original_eval:/data/raw/test"
+      - "./data/raw/random_data_cut:/data/raw/random_data_cut"
       - "./data/processed:/data/processed"
       - "./data/artifacts:/data/artifacts"
     networks:
       - default
+
   grafana:
     depends_on:
       - prometheus
@@ -176,6 +179,7 @@ services:
       - PYTHONPATH=/client
     env_file:
     - ./docker_env/aws_credentials.env
+    - ./docker_env/prefect.env
 
 volumes:
   prometheus_data: {}

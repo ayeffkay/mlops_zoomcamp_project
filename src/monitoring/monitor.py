@@ -4,7 +4,6 @@ import os
 from typing import List
 
 import numpy as np
-import preprocessing.utils as utils
 import psycopg
 from evidently import ColumnMapping
 from evidently.metric_preset import DataDriftPreset
@@ -12,6 +11,8 @@ from evidently.metrics import DatasetDriftMetric
 from evidently.report import Report
 from evidently.test_preset import DataDriftTestPreset
 from evidently.test_suite import TestSuite
+
+import preprocessing.utils as utils
 
 DATA_MONITORING_DB = os.getenv("DATA_MONITORING_DB", "data_monitoring")
 DATA_MONITORING_TABLE = os.getenv("DATA_MONITORING_TABLE", "test")

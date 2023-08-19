@@ -2,7 +2,7 @@ export PYTHONPATH:=./src
 setup:
 	pip install pipenv==2023.7.23
 	pipenv install && pipenv shell
-	pipenv install --dev black==23.7.0 mypy==1.5.0 isort==5.12.0 pylint==2.17.5 flake8==6.1.0 pytest==7.4.0
+	pipenv install --dev black==23.7.0 mypy==1.5.0 isort==5.12.0 pylint==2.17.5 flake8==6.1.0 pytest==7.4.0 pytest-cov==4.1.0
 pre_commit:
 	pipenv install --dev pre-commit==3.3.3
 	pre-commit install

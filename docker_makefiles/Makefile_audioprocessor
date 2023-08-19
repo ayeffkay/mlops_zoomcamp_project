@@ -1,8 +1,29 @@
-make_buckets:
+create_buckets:
 	chmod +x "scripts/create_data_buckets.sh"
 	sh -c "scripts/create_data_buckets.sh"
+run_prefect:
+	chmod +x "scripts/run_prefect.sh"
+	sh -c "scripts/run_prefect.sh true"
+setup:
+	pip install black==23.7.0 mypy==1.5.0 isort==5.12.0 pylint==2.17.5 flake8==6.1.0 pytest==7.4.0 pytest-cov==4.1.0
+quality_checks:
+	find . -type f -name "*.py" -exec isort {} \;
+	find .  -type f -name "*.py" -exec black {} \;
+	find .  -type f -name "*.py" -exec mypy --install-types --ignore-missing-imports \
+																--disable-error-code=misc \
+																--disable-error-code=unused-coroutine \
+																--disable-error-code=has-type \
+																--disable-error-code=call-overload \
+																--disable-error-code=attr-defined {} \;
+	find .  -type f -name "*.py" -exec flake8 --ignore=E501,W291 {} \;
+	find .  -type f -name "*.py" -exec pylint --fail-under 0 --disable=missing-class-docstring \
+																--disable=missing-function-docstring \
+																--disable=missing-module-docstring \
+																--disable=no-value-for-parameter \
+																--disable=consider-using-from-import \
+																--disable=invalid-name {} \;
 unit_tests:
-	pytest --cov-report term --cov=src tests/
+	cd ../ && pytest --cov-report term --cov=src tests/
 put_raw_train_data_to_s3:
 	python preprocessing/put_data_to_s3.py --folder /data/raw/train_valid \
 										   --deployments_folder deployments \
@@ -18,11 +39,6 @@ put_raw_test_data_to_s3:
 										   --deployments_folder deployments \
 										   --mode test --bucket_type raw
 	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_RAW_DATA_BUCKET} --recursive | wc -l
-put_processed_data_to_s3:
-	python preprocessing/put_data_to_s3.py --folder /data/processed \
-										   --deployments_folder deployments \
-										   --mode features --bucket_type features
-	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
 preprocess_raw_train_data:
 	python preprocessing/preprocessing_workflows.py --input_folder /data/raw/train_valid \
 													--audio_config_file configs/audio_config.yaml \
@@ -45,6 +61,11 @@ preprocess_raw_test_data:
 													--output_folder /data/processed --mode test --run_as_deployment \
 													--load_from_s3 \
 													--put_outputs_to_s3
+	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
+put_processed_data_to_s3:
+	python preprocessing/put_data_to_s3.py --folder /data/processed \
+										   --deployments_folder deployments \
+										   --mode features --bucket_type features
 	aws s3 --endpoint-url ${S3_ENDPOINT_URL} ls ${S3_FEATURES_BUCKET} --recursive
 get_features_from_s3:
 	python preprocessing/get_data_from_s3.py --folder /data/processed \
@@ -104,11 +125,6 @@ register_best_model:
 								--deployments_folder deployments \
 								--n_models 2
 make_copies:
-	cp /data/artifacts/1/model/model.pkl deploy/triton_models/predictor/1
-	cp /data/artifacts/2/model/model.pkl deploy/triton_models/predictor/2
-	cp /data/artifacts/1/model/target_encoder.pkl deploy/triton_models/post_processor/1
-get_artifacts_from_s3:
-	python preprocessing/get_data_from_s3.py --folder "" \
-										   --deployments_folder deployments \
-										   --bucket_type mlflow \
-										   --save_to "/data/artifacts"
+	cp /data/artifacts/1/model/model.pkl deploy/triton_models/predictor_1/1
+	cp /data/artifacts/2/model/model.pkl deploy/triton_models/predictor_2/1
+	cp /data/artifacts/1/model/target_encoder.pkl deploy/triton_models/post_processor_1/1

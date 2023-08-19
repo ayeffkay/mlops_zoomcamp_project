@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
   "links": [],
   "liveNow": true,
   "panels": [
@@ -281,7 +280,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "a7b8d1d6-b7d4-447a-9472-ec241fce6037"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -333,18 +332,27 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "a7b8d1d6-b7d4-447a-9472-ec241fce6037"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT \"timestamp\", number_of_columns, number_of_drifted_columns, dataset_drift FROM test LIMIT 50 ",
-          "refId": "A",
+          "rawSql": "SELECT \"timestamp\", number_of_drifted_columns, number_of_columns, share_of_drifted_columns, dataset_drift FROM test LIMIT 50 ",
+          "refId": "datetime",
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
                     "name": "\"timestamp\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "number_of_drifted_columns",
                     "type": "functionParameter"
                   }
                 ],
@@ -362,7 +370,7 @@
               {
                 "parameters": [
                   {
-                    "name": "number_of_drifted_columns",
+                    "name": "share_of_drifted_columns",
                     "type": "functionParameter"
                   }
                 ],
@@ -410,6 +418,6 @@
   "timezone": "browser",
   "title": "model_metrics",
   "uid": "e8c763cd-b9e8-4933-ab47-58680d7821fa",
-  "version": 7,
+  "version": 1,
   "weekStart": ""
 }

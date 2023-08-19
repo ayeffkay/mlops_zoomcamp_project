@@ -3,8 +3,9 @@ from pathlib import Path
 from typing import Literal, Optional
 
 import click
-import preprocessing.utils as utils
 from prefect import flow
+
+import preprocessing.utils as utils
 from training.trainer import Trainer
 
 
@@ -168,7 +169,7 @@ def main_training_wrapper(
         },
         "path": f"{CUR_PATH}/{deployments_folder}",
     }
-    logger = utils.get_logger(__file__, "INFO")
+    logger = utils.init_logger(__file__, "INFO")
     utils.create_and_run_deployment(deployment_kwargs, logger)
 
 

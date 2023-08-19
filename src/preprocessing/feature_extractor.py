@@ -6,9 +6,10 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
-import preprocessing.utils as utils
 import sklearn
 from prefect import task
+
+import preprocessing.utils as utils
 from preprocessing.audio import Audio
 
 

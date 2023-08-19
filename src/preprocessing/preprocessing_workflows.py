@@ -5,15 +5,16 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 import click
 import numpy as np
 import pandas as pd
-import preprocessing.utils as utils
 from pandas.api.extensions import ExtensionArray
 from prefect import flow
 from prefect_dask.task_runners import DaskTaskRunner
+from sklearn.preprocessing import LabelEncoder
+
+import preprocessing.utils as utils
 from preprocessing.feature_extractor import (
     FeatureExtractor,
     run_feature_extraction_from_audio_file,
 )
-from sklearn.preprocessing import LabelEncoder
 
 
 @flow(name="feature_dicts_to_df", validate_parameters=False)
@@ -195,7 +196,7 @@ def main_preprocessing_runner(
             "parameters": preproc_kwargs,
             "path": f"{CUR_PATH}/{deployments_folder}",
         }
-        logger = utils.get_logger(__file__, "INFO")
+        logger = utils.init_logger(__file__, "INFO")
         utils.create_and_run_deployment(deployment_kwargs, logger)
     else:
         main_preprocessing(**preproc_kwargs)

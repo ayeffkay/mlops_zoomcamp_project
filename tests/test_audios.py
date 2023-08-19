@@ -4,9 +4,10 @@ from pathlib import Path
 sys.path.append("./src")
 import librosa
 import numpy as np
-import preprocessing.utils as utils
 import pytest
 from prefect.testing.utilities import prefect_test_harness
+
+import preprocessing.utils as utils
 from preprocessing.audio import Audio
 from preprocessing.feature_extractor import (
     FeatureExtractor,
@@ -79,6 +80,8 @@ def test_feature_extraction_func():
 def test_feature_extraction_flow():
     with prefect_test_harness():
         files = utils.get_files_list.fn("data/raw/random_data_cut")
+        if not len(files):
+            files = utils.get_files_list_fn("/data/raw/random_data_cut")
         config_file = CUR_PATH / "test_data/audio_config.yaml"
         (X, y), _, column_names, encoder = run_feature_extraction_all(
             files, config_file

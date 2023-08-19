@@ -1,0 +1,58 @@
+###
+### A complete description of a Prefect Deployment for flow 'training_runner'
+###
+name: run_xgboost_training
+description: null
+version: null
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+work_pool_name: mlops-zoomcamp
+tags: []
+parameters:
+  tracking_uri: http://mlflow:5001
+  clf_training_func_name: run_xgboost_training
+  features_folder: /data/processed
+  load_from_s3: true
+  target_encoder_file: target_encoder.pkl
+  feature_names_file: feature_names.pkl
+  train_file_name: train.pkl
+  val_file_name: val.pkl
+  test_file_name: test.pkl
+  metric_name: imblearn.metrics:geometric_mean_score
+  classifier_kwargs_file: null
+  target_column_name: genre
+  random_state: 42
+  n_trials_for_hyperparams: 20
+schedule: null
+is_schedule_active: null
+infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: training_runner
+manifest_path: null
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  block_type_slug: process
+  _is_anonymous: true
+  _block_document_name: anonymous-7549aed1-d7ad-490d-af01-1f5d4caa6a79
+  _block_document_id: 91509296-31c1-410a-89b9-888c09a9e6ad
+  _block_type_slug: process
+storage: null
+path: /root/src/training/deployments
+entrypoint: /root/src/training/training_workflows.py:training_runner
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
+timestamp: '2023-08-19T10:26:37.941366+00:00'
+triggers: []

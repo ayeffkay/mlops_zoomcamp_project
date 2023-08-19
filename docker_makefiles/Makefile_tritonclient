@@ -1,3 +1,6 @@
+run_prefect:
+	chmod +x "/scripts/run_prefect.sh"
+	sh -c "/scripts/run_prefect.sh"
 run_client_eval:
 	python client.py --url audioprocessor_server:8001 \
 					--model_name ensemble_1 \

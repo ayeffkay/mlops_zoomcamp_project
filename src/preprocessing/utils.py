@@ -25,7 +25,7 @@ def create_and_run_deployment(
 ):
     if logger:
         logger.info(
-            f"Created deployment with the following arguments: {pprint.pprint(deployment_kwargs)}"
+            f"Created deployment with the following arguments: {pprint.pformat(deployment_kwargs)}"
         )
     deployment = Deployment(**deployment_kwargs)
     _ = deployment.apply()
@@ -121,7 +121,7 @@ def load_config_from_yaml(file: str) -> Dict[str, Any]:
 
 def get_files_by_names_from_s3(
     bucket_name: str,
-    filenames: str,
+    filenames: List[str],
     save_to: Optional[str] = None,
 ) -> List[str]:
     s3_client = init_s3_client.fn()

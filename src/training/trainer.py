@@ -8,7 +8,6 @@ import imblearn
 import mlflow
 import numpy as np
 import optuna
-import preprocessing.utils as utils
 import sklearn
 import xgboost as xgb
 from mlflow.entities import ViewType
@@ -18,6 +17,8 @@ from optuna.integration.mlflow import MLflowCallback
 from optuna.samplers import TPESampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+
+import preprocessing.utils as utils
 
 
 class Trainer:

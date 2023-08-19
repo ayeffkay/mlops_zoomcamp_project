@@ -6,10 +6,11 @@ from typing import List, Literal, Optional
 
 import click
 import mlflow
-import preprocessing.utils as utils
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 from prefect import flow, task
+
+import preprocessing.utils as utils
 
 mlflow.set_tracking_uri(os.getenv("BACKEND_STORE_URI"))
 

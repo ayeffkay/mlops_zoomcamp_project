@@ -6,9 +6,10 @@ from typing import List, Tuple
 import black
 import click
 import numpy as np
-import preprocessing.utils as utils
 import tritonclient.grpc.aio as grpcclient
 from prefect import flow, task
+
+import preprocessing.utils as utils
 
 LOGGER = utils.init_logger(__name__, "INFO")
 MAX_BATCH_SIZE = int(os.getenv("MAX_BATCH_SIZE", 16))

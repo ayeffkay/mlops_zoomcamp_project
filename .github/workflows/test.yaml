@@ -16,25 +16,41 @@ jobs:
     - name: publish
       uses: actions/upload-artifact@v3
       with:
-          name: triton_models
-          path: ./src/deploy/triton_models
-          retention-days: "2"
-  run_unit_tests:
+        name: triton_models
+        path: ./src/deploy/triton_models
+        retention-days: "2"
+  build_dev_image:
     runs-on: ubuntu-20.04
     steps:
     - name: checkout
       uses: actions/checkout@v3
-    - name: install_python
-      uses: actions/setup-python@v4
+    - name: log_in_dockerhub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
       with:
-        python-version: '3.8.10'
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: build_dev_image
+      run: |
+        docker compose -f docker-compose.yaml build audioprocessor_dev
+        docker push audioprocessor_dev:v1.0.0
+  run_unit_tests:
+    needs: build_dev_image
+    runs-on: ubuntu-20.04
+    container:
+      image: audioprocessor_dev:v1.0.0
+    volumes:
+      - src:/root/src
+      - tests:/root/tests
+      - Makefile:/root/Makefile
+    steps:
     - name: setup
       run: |
-          sudo apt-get install -y ffmpeg make ca-certificates curl gnupg
-          pip install -r requirements.txt
+        pip install pytest pytest-cov
     - name: unit_tests
-      run: make unit_tests
-    - name: Upload coverage reports to Codecov
+      run: |
+        cd /root
+        make unit_tests
+    - name: upload_coverage_reports
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
