@@ -35,11 +35,14 @@ jobs:
         docker tag audioprocessor_dev:v1.0.0 ayeffkay/mlops_zoomcamp_project:audioprocessor
   run_unit_tests:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: /root
     container:
       image: ayeffkay/mlops_zoomcamp_project:audioprocessor
       volumes:
-        - src:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/src
-        - tests:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/tests
+        - src:/root/src
+        - tests:/root/tests
     steps:
     - name: unit_tests
       run: |
