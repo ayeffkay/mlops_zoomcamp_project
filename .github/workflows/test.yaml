@@ -40,8 +40,6 @@ jobs:
       volumes:
         - src:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project
         - tests:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project
-      env:
-        PYTHONPATH=$PYTHONPATH:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/src
     steps:
     - name: unit_tests
       run: |
