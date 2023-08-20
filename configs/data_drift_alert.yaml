@@ -1,23 +1,20 @@
 apiVersion: 1
 groups:
     - orgId: 1
-      name: data_drift_eval_group
+      name: default
       folder: Alerts
       interval: 1m
       rules:
-        - uid: c57c2121-2016-43ed-8ed7-795f56837b53
-          title: data_drift_alert
+        - uid: edb37ce2-fe6f-4d8c-bff1-ff2c02d84a3c
+          title: Data drift alert
           condition: C
           data:
-            - refId: test_data_drift
+            - refId: A
               relativeTimeRange:
-                from: 600
+                from: 10800
                 to: 0
-              datasourceUid: a7b8d1d6-b7d4-447a-9472-ec241fce6037
+              datasourceUid: PCC52D03280B7034C
               model:
-                datasource:
-                    type: postgres
-                    uid: a7b8d1d6-b7d4-447a-9472-ec241fce6037
                 editorMode: code
                 format: table
                 hide: false
@@ -25,13 +22,10 @@ groups:
                 maxDataPoints: 43200
                 rawQuery: true
                 rawSql: 'SELECT count(CASE WHEN dataset_drift THEN 1 END) FROM test '
-                refId: test_data_drift
+                refId: A
                 sql:
                     columns:
-                        - name: COUNT
-                          parameters:
-                            - name: dataset_drift
-                              type: functionParameter
+                        - parameters: []
                           type: function
                     groupBy:
                         - property:
@@ -41,7 +35,7 @@ groups:
                 table: test
             - refId: B
               relativeTimeRange:
-                from: 600
+                from: 10800
                 to: 0
               datasourceUid: __expr__
               model:
@@ -61,7 +55,7 @@ groups:
                 datasource:
                     type: __expr__
                     uid: __expr__
-                expression: test_data_drift
+                expression: A
                 hide: false
                 intervalMs: 1000
                 maxDataPoints: 43200
@@ -70,14 +64,14 @@ groups:
                 type: reduce
             - refId: C
               relativeTimeRange:
-                from: 600
+                from: 10800
                 to: 0
               datasourceUid: __expr__
               model:
                 conditions:
                     - evaluator:
                         params:
-                            - 1
+                            - 0
                         type: gt
                       operator:
                         type: and
@@ -91,16 +85,20 @@ groups:
                 datasource:
                     type: __expr__
                     uid: __expr__
-                expression: test_data_drift
+                expression: B
                 hide: false
                 intervalMs: 1000
                 maxDataPoints: 43200
                 refId: C
                 type: threshold
+          dashboardUid: e8c763cd-b9e8-4933-ab47-58680d7821fa
+          panelId: 3
           noDataState: NoData
           execErrState: Error
           for: 1m
           annotations:
-            description: 'Dataset drift detected: number of drifted columns is greater than 50%!'
-            summary: Data drift detected
+            __dashboardUid__: e8c763cd-b9e8-4933-ab47-58680d7821fa
+            __panelId__: "3"
+            description: Data drift occurred
+            summary: Data drift occurred
           isPaused: false

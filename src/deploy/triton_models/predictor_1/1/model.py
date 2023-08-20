@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Text
 
 import c_python_backend_utils as c_pb_utils
 import numpy as np
-import preprocessing.utils as utils
 import triton_python_backend_utils as pb_utils
 
+import preprocessing.utils as utils
 from monitoring.monitor import DataMonitor
 
 

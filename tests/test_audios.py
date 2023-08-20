@@ -81,11 +81,9 @@ def test_feature_extraction_flow():
     with prefect_test_harness():
         files = utils.get_files_list.fn("data/raw/random_data_cut")
         if not len(files):
-            files = utils.get_files_list_fn("/data/raw/random_data_cut")
+            files = utils.get_files_list.fn("/data/raw/random_data_cut")
         config_file = CUR_PATH / "test_data/audio_config.yaml"
-        (X, y), _, column_names, encoder = run_feature_extraction_all(
-            files, config_file
-        )
+        (X, y), _, _, encoder = run_feature_extraction_all(files, config_file)
         assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
         assert X.shape[0] == len(files)
         assert X.shape[0] == y.shape[0]

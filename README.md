@@ -1,10 +1,11 @@
 # mlops_zoomcamp_project
+
 ![Project stack](images/stack.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![codecov](https://codecov.io/gh/ayeffkay/mlops_zoomcamp_project/graph/badge.svg?token=PDIYISF8JT)](https://codecov.io/gh/ayeffkay/mlops_zoomcamp_project)
 
-Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops-zoomcamp) hosted by DataTalksClub.
+Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops-zoomcamp) hosted by DataTalksClub. This project can be considered as example how to develop end-to-end ML-based system.
 
 **Disclaimer**: ML is very simple here cause the goal is to try MLOps tools, not to beat SOTA :)
 
@@ -16,6 +17,7 @@ Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops
     - [Approach](#approach)
     - [Metric](#metric)
   - [System architecture](#system-architecture)
+  - [Project structure](#project-structure)
   - [Instructions](#instructions)
     - [Prerequisites](#prerequisites)
     - [Launching services](#launching-services)
@@ -37,13 +39,13 @@ Final project for [MLOps zoomcamp course](https://github.com/DataTalksClub/mlops
 
 ## Task description
 
-The task is to define music genre by wav record. I.e., at the input we get some record and musical genre (class) is predicted at the output. For this project the following genres were determined: `{blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, rock}`.
+The task is to define music genre by wav record. I.e., at the input we get some record and musical genre (class) is predicted at the output. For this project the following genres were analyzed: `{blues, classical, country, disco, hip-hop, jazz, metal, pop, reggae, rock}`.
 
 ### Dataset
 
 For training and validation I took [GTZAN dataset](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification), this is sort of MNIST for sound. Then some genres were supplemented by records from [ISMIR dataset](https://www.upf.edu/web/mtg/ismir2004-genre).
 
-For testing some audio recordings were collected manually by myself (to discover data drift). I provided only [piece of the training data](data/raw/genres_original_subset), [cropped test audios](data/raw/genres_original_eval) and [cropped random audios without labels](data/raw/random_data_cut/) in the repo because audio files take up a lot of disk space, also working with full dataset version is resource-hungry and requires for about an hour of free time (depending on hardware). But if you wish, full dataset for training can be downloaded from [here](https://drive.google.com/file/d/1sPptNqohrdEEvsABLGuTRmnFakVuk3SW/view?usp=sharing). Also you can use your own audios - code is designed to work with `wav`, `mp3` and `mp4`. Note that data folder should have the following structure (or `.mp3`, `.mp4` instead of `.wav`), e.g.:
+For testing some audio recordings were collected manually by myself (to discover data drift). I provided only [piece of the training data](data/raw/genres_original_subset), [cropped test audios](data/raw/genres_original_eval) and [cropped random audios without labels](data/raw/random_data_cut/) in the repo because audio files take up a lot of disk space, also working with full dataset version is resource-hungry and requires for about half an hour of free time (depending on hardware). But if you wish, full dataset for training can be downloaded from [here](https://drive.google.com/file/d/1sPptNqohrdEEvsABLGuTRmnFakVuk3SW/view?usp=sharing). Also you can use your own audios - code is designed to work with `wav`, `mp3` and `mp4`. Note that data folder should have the following structure (or `.mp3`, `.mp4` instead of `.wav`), e.g.:
 
 ```bash
     | data_folder_name (e.g., genres_original_subset)
@@ -67,7 +69,135 @@ GTZAN dataset was balanced (100 records per genre), but after some classes have 
 
 ## System architecture
 
-TBD
+![System architecture](images/system_arch.png)
+
+## Project structure
+
+```bash
+.dockerignore
+.github
+   |-- workflows # CI/CD
+   |   |-- test.yaml
+.gitignore
+.pre-commit-config.yaml # pre-commit hooks
+LICENSE
+Makefile # useful commands for quality checks, running unit tests, etc.
+Pipfile # requirements for audioprocessor_dev image
+Pipfile.lock
+README.md
+configs
+   |-- grafana_dashboards.yaml
+   |-- grafana_datasources.yaml
+   |-- init.sql # creates databases when PostgreSQL starts
+   |-- prometheus.yaml # prometheus datasources
+dashboards
+   |-- model_metrics.json # Grafana Dashboard
+data
+   |-- artifacts # registered models from mlflow
+   |   |-- 1
+   |   |-- 2
+   |-- processed # vectorized features to train ML models
+   |   |-- feature_names.pkl
+   |   |-- target_encoder.pkl
+   |   |-- test.pkl
+   |   |-- train.pkl
+   |   |-- train_subset.pkl
+   |   |-- val.pkl
+   |-- raw
+   |   |-- genres_original_eval # test data
+   |   |   |-- blues
+   |   |   |-- classical
+   |   |   |-- country
+   |   |   |-- disco
+   |   |   |-- hiphop
+   |   |   |-- jazz
+   |   |   |-- metal
+   |   |   |-- pop
+   |   |   |-- reggae
+   |   |   |-- rock
+   |   |-- genres_original_subset # same structure as for genres_original_eval, train subset to make code health fast check
+   |   |-- genres_original # is not present in the repo, but full dataset version should be located here
+   |   |-- random_data_cut # random data to check inference
+docker-compose.yaml # main docker compose file to collect all the images
+docker_env # env variables for images
+   |-- audio_processor.env
+   |-- aws_credentials.env
+   |-- localstack.env
+   |-- mlflow.env
+   |-- postgres.env
+   |-- prefect.env # prefect cloud keys
+   |-- tritonserver.env
+docker_makefiles # will be mounted as ordinary Makefiles to the corresponding images
+   |-- Makefile_audioprocessor
+   |-- Makefile_tritonclient
+   |-- Makefile_tritonserver
+dockerfiles
+   |-- Dockerfile.audio # dev image
+   |-- Dockerfile.mlflow # mlflow service
+   |-- Dockerfile.postgres # postgre sql service
+   |-- Dockerfile.tritonclient # tritonclient service
+   |-- Dockerfile.tritonserver # tritonserver service
+images
+   |-- stack.png
+   |-- system_arch.png
+src
+   |-- __init__.py
+   |-- deploy
+   |   |-- client # runs requests from client
+   |   |   |-- client.py
+   |   |-- conda-pack # conda environment for triton models
+   |   |   |-- Dockerfile.condapack
+   |   |   |-- conda.yaml
+   |   |-- triton_models # models to be deployed
+   |   |   |-- ensemble_1
+   |   |   |   |-- config.pbtxt
+   |   |   |-- post_processor_1
+   |   |   |   |-- 1
+   |   |   |   |   |-- model.py
+   |   |   |   |   |-- target_encoder.pkl
+   |   |   |   |-- config.pbtxt
+   |   |   |-- pre_processor_1
+   |   |   |   |-- 1
+   |   |   |   |   |-- model.py
+   |   |   |   |-- config.pbtxt
+   |   |   |-- predictor_1
+   |   |   |   |-- 1
+   |   |   |   |   |-- model.pkl
+   |   |   |   |   |-- model.py
+   |   |   |   |-- config.pbtxt
+   |   |   |-- predictor_2
+   |   |   |   |-- 1
+   |   |   |   |   |-- model.pkl
+   |   |   |   |   |-- model.py
+   |   |   |   |-- config.pbtxt
+   |-- monitoring # monitoring module
+   |   |-- monitor.py
+   |-- preprocessing # feature extraction routines
+   |   |-- audio.py
+   |   |-- configs
+   |   |   |-- audio_config.yaml
+   |   |-- feature_extractor.py
+   |   |-- get_data_from_s3.py
+   |   |-- preprocessing_workflows.py
+   |   |-- put_data_to_s3.py
+   |   |-- utils.py
+   |-- register # promotes models to the mlflow registry
+   |   |-- register.py
+   |-- scripts # scripts to run inside images
+   |   |-- create_data_buckets.sh
+   |   |-- create_server_buckets.sh
+   |   |-- run_mlflow.sh
+   |   |-- run_prefect.sh
+   |-- training # training routines
+   |   |-- trainer.py
+   |   |-- training_workflows.py
+tests # unit tests
+   |-- test_audios.py
+   |-- test_data
+   |   |-- audio_config.yaml
+   |   |-- dustbus.mp3
+   |   |-- dustbus.wav
+```
 
 ## Instructions
 
@@ -98,7 +228,7 @@ Then run the following steps inside container:
   make create_buckets run_prefect
 ```
 
-`create_buckets` step will create buckets for raw data and for extracted features, `run_prefect` step will make authorization and start pool afterwards. After prefect agent start, switch to the second window of `audioprocessor_dev` container. Then all commands below must be executed inside this container.
+`create_buckets` step will create buckets for raw data and for extracted features, `run_prefect` step will make authorization and start pool afterwards. After prefect agent will start, switch to the second window of `audioprocessor_dev` container, all commands below must be executed inside this container.
 
 ### Tests
 
@@ -124,25 +254,31 @@ To check code quality before commits run outside the container
 
 ### Feature extraction
 
-You have three ways here:
+Feature extraction is implemented as individual prefect deployment and uses [prefect-dask](https://docs.prefect.io/2.11.4/guides/dask-ray-task-runners/) for parallelization. In practice we don't need feature extraction and training models together, instead more frequent use case is to extract features once and make experiments with different models for pre-defined feature set.
 
-- Run full feature extraction (resource-hungry, needs about an hour depending on the hardware). This step requires full dataset version, download it from Google Drive by the link provided above
+Progress and logs can be tracked in the terminal with prefect agent (first terminal for `audioprocessor_dev`). After the first run this deployment can be launched from prefect cloud UI.
+
+You have three ways for feature extraction:
+
+- Run full feature extraction (resource-hungry, needs about half an hour depending on the hardware). This step requires full dataset version, download it from Google Drive by the link provided above
 - Run feature extraction on [piece of the dataset](data/raw/genres_original_subset/) just for testing purposes
 - Use [extracted features from the full dataset](data/processed/)
 
-Feature extraction is implemented as individual prefect deployment, and uses [prefect-dask](https://docs.prefect.io/2.11.4/guides/dask-ray-task-runners/) for parallelization. In practice we don't need feature extraction and training models together, instead more frequent use case is to extract features once and make experiments with different models for pre-defined feature set.
-
-Progress can be tracked in the terminal with prefect agent. After the first run this deployment can be launched from prefect deployments UI.
-
 #### First way
 
-Check if `/data/raw/genres_original` folder exists inside container and is not empty. Then run feature extraction pipelines:
+It's assumed that full dataset version from Google Drive is downloaded into `src/data/raw/genres_original`. Check if `/data/raw/genres_original` folder exists inside container and is not empty. Then run feature extraction pipelines:
 
 ```bash
   # put wav files to s3
   make put_raw_train_data_to_s3 put_raw_test_data_to_s3
   # run feature extraction and save to features bucket
   make preprocess_raw_train_data preprocess_raw_test_data
+```
+
+For debugging purposes data can be downloaded from s3 into `/data/proccessed` inside container (this folder is mounted as volume for `/src/data/processed` outside the container):
+
+```bash
+  make get_features_from_s3
 ```
 
 #### Second way
@@ -181,7 +317,7 @@ After training stage two best models by validation G-Mean score are promoted to 
   make register_best_model make copies
 ```
 
-Checkpoints of two best registered models are downloaded from s3 and copied into [folder with deployment-ready models](src/deploy/triton_models/).
+Checkpoints of two best registered models are downloaded from s3 and copied into [folder with deployment-ready models](src/deploy/triton_models/). To see registered models, check `localhost:5001`. After register stage `audioprocessor_dev` is no longer needed, commands below will be launched in inference containers.
 
 ### Models deployment
 
@@ -236,14 +372,16 @@ To launch Triton Server, go inside `audioprocessor_server` container and start i
   make start_triton_server
 ```
 
-When service is ready you will see the following message:
-> I0819 16:30:44.071854 62 grpc_server.cc:4819] Started GRPCInferenceService at 0.0.0.0:8001
+When service is ready you will see the following messages:
+> [I0819 16:30:44.071854 62 grpc_server.cc:4819] Started GRPCInferenceService at 0.0.0.0:8001
 >
-> I0819 16:30:44.072438 62 http_server.cc:3477] Started HTTPService at 0.0.0.0:8000
+> [I0819 16:30:44.072438 62 http_server.cc:3477] Started HTTPService at 0.0.0.0:8000
 >
-> I0819 16:30:44.114924 62 http_server.cc:184] Started Metrics Service at 0.0.0.0:8002
+> [I0819 16:30:44.114924 62 http_server.cc:184] Started Metrics Service at 0.0.0.0:8002
 
-After that go inside client service and run inference on test data:
+Metrics Service at `localhost:8002` is specified as [Prometheus](https://prometheus.io/) datasource in [this config](configs/prometheus.yaml).
+
+After that go inside client container and run inference on test data:
 
 ```bash
   docker exec -it audioprocessor_client bash
@@ -254,13 +392,13 @@ After that go inside client service and run inference on test data:
 
 ```
 
-The data is chosen so that the drift must occur, so it is the expected behavior that models performs bad.
+The data is chosen so that the data drift must occur, so it is the expected behavior that models performs bad.
 
 ### Models monitoring
 
-[Models monitoring](src/monitoring/monitor.py) is implemented using [Evidently AI](https://www.evidentlyai.com/), [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) inside [predictor_1](src/deploy/triton_models/predictor_1/1/model.py). PostgreSQL database and Prometheus are specified as data sources for Grafana in [configs](configs), dashboard config is located [here](dashboards/model_metrics.json). To see grafana dashboard, check `localhost:3000`  (default username is `admin`, password is similar).
+[Models monitoring](src/monitoring/monitor.py) is implemented using [Evidently AI](https://www.evidentlyai.com/) and [Grafana](https://grafana.com/) inside [predictor_1](src/deploy/triton_models/predictor_1/1/model.py). [PostgreSQL database](https://www.postgresql.org/) and Prometheus are specified as data sources for Grafana in [configs](configs), dashboard config is located [here](dashboards/model_metrics.json). To see grafana dashboard, check `localhost:3000`, `Dashboards->model_metrics` (default username is `admin`, password is similar).
 
-As mentioned above, when first model makes prediction for batch, evidently calculates data drift and saves result to PostgreSQL database. If data drift is detected, the prediction is made by the second model. Also default Grafana alerting was set - it sends notifications inside Grafana if batch data drift occurred.
+As mentioned above, when first model makes prediction for batch, evidently calculates data drift and saves result to PostgreSQL database. If data drift is detected, the prediction is made by the second model. Also default Grafana alerting was set - it sends notifications inside Grafana if batch data drift occurred (I [exported it](configs/data_drift_alert.yaml) but for some reasons I couldn't import it in the new image).
 
 ## Implemented features: summary
 
@@ -275,6 +413,6 @@ As mentioned above, when first model makes prediction for batch, evidently calcu
   - [x] There are [unit tests](tests/test_audios.py)
   - [ ] There is an integration test [?] there is no separate integration test, I just run all the code inside docker containers and it worked. I don't understand what else is expected after unit tests.
   - [x] Linters (flake8, pylint) and code formatter (black) are used
-  - [x] There's a lot of makefiles ([makefile for project](Makefile), [makefiles for services](makefiles))
+  - [x] There are a lot of makefiles ([makefile for project](Makefile), [makefiles for services](makefiles))
   - [x] There are [pre-commit hooks](.pre-commit-config.yaml) for quality checks
   - [x] There's a [CI/CD pipeline](.github/workflows/test.yaml): `build_dev_image` builds and pushes dev image to dockerhub (CD), `run_unit_tests` runs unit tests and computes code coverage from builded image (CI), `build_conda_pack` builds conda environment for Triton Inference server and returns archive as artifact (CD)

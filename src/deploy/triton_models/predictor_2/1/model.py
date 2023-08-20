@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Dict, List, Text
 
 import c_python_backend_utils as c_pb_utils
-import preprocessing.utils as utils
 import triton_python_backend_utils as pb_utils
+
+import preprocessing.utils as utils
 
 
 class TritonPythonModel:
