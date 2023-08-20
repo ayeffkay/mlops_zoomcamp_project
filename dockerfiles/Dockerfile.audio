@@ -4,4 +4,4 @@ RUN pip install -U pip==23.2.1 && pip install pipenv==2023.7.23
 COPY [ "../Pipfile", "../Pipfile.lock", "/tmp/" ]
 RUN cd /tmp && pipenv install --system --deploy
 COPY [ "src", "/root/src/" ]
-COPY [ "tests", "/root/tests"]
+COPY [ "tests", "/root/tests" ]
