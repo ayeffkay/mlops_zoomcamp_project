@@ -48,6 +48,7 @@ jobs:
       run: |
         pip install pytest pytest-cov
         echo `ls src`
+        echo `ls tests`
         pytest --cov=src --cov-report=xml tests
     - name: upload_coverage_reports
       uses: codecov/codecov-action@v3
