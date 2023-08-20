@@ -38,14 +38,15 @@ jobs:
     container:
       image: ayeffkay/mlops_zoomcamp_project:audioprocessor
       volumes:
-        - src:/root/src
-        - tests:/root/tests
+        - src:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project
+        - tests:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project
+      env:
+        PYTHONPATH=$PYTHONPATH:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/src
     steps:
     - name: unit_tests
       run: |
         pip install pytest pytest-cov
-        echo `pwd`
-        echo `ls /root/src`
+        pytest --cov=./src --cov-report=xml tests/
     - name: upload_coverage_reports
       uses: codecov/codecov-action@v3
       env:
