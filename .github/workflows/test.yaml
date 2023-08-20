@@ -38,8 +38,8 @@ jobs:
     container:
       image: ayeffkay/mlops_zoomcamp_project:audioprocessor
       volumes:
-        - src:/.
-        - tests:/.
+        - src:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/src
+        - tests:/__w/mlops_zoomcamp_project/mlops_zoomcamp_project/tests
     steps:
     - name: unit_tests
       run: |
