@@ -40,9 +40,6 @@ jobs:
         working-directory: /root
     container:
       image: ayeffkay/mlops_zoomcamp_project:audioprocessor
-      volumes:
-        - src:/root/src
-        - tests:/root/tests
     steps:
     - name: unit_tests
       run: |
