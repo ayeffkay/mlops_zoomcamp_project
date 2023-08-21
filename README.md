@@ -86,23 +86,23 @@ Pipfile # requirements for audioprocessor_dev image
 Pipfile.lock
 README.md
 configs
-   |-- grafana_dashboards.yaml
-   |-- grafana_datasources.yaml
+   |-- grafana_dashboards.yaml # dashboards config
+   |-- grafana_datasources.yaml # datasources config
    |-- init.sql # creates databases when PostgreSQL starts
    |-- prometheus.yaml # prometheus datasources
 dashboards
    |-- model_metrics.json # Grafana Dashboard
 data
    |-- artifacts # registered models from mlflow
-   |   |-- 1
-   |   |-- 2
+   |   |-- 1 # the best model
+   |   |-- 2 # second best model
    |-- processed # vectorized features to train ML models
-   |   |-- feature_names.pkl
-   |   |-- target_encoder.pkl
-   |   |-- test.pkl
-   |   |-- train.pkl
-   |   |-- train_subset.pkl
-   |   |-- val.pkl
+   |   |-- feature_names.pkl # feature names (w/o target)
+   |   |-- target_encoder.pkl # str->int
+   |   |-- test.pkl # test data
+   |   |-- train.pkl # train data
+   |   |-- train_subset.pkl # train subset
+   |   |-- val.pkl # validation data
    |-- raw
    |   |-- genres_original_eval # test data
    |   |   |-- blues
@@ -392,7 +392,7 @@ After that go inside client container and run inference on test data:
 
 ```
 
-The data is chosen so that the data drift must occur, so it is the expected behavior that models performs bad.
+The data is chosen so that the data drift must occur, so it is the expected behavior that models perform bad.
 
 ### Models monitoring
 
@@ -408,11 +408,11 @@ As mentioned above, when first model makes prediction for batch, evidently calcu
 - [x] Worfkow orchestration: workflow is fully deployed but requires some manual actions due to Triton Inference Server nature
 - [x] Model deployment: special tools for model deployment used (Triton Inference Server and Triton Inference Client for requests)
 - [x] Model monitoring: comprehensive model monitoring that runs a conditional workflow (switching to different model if data drift occurs) and generates dashboards for service health and data drift metrics
-- [x] Reproducibility: instructions are clear (I hope so:)), it's easy to run the code (I hope so too :)) and it must work, I tested it
+- [x] Reproducibility: instructions are clear (I hope so:)), it's easy to run the code (I hope so too :)) and it must work, I tested
 - [ ] Best practices:
   - [x] There are [unit tests](tests/test_audios.py)
   - [ ] There is an integration test [?] there is no separate integration test, I just run all the code inside docker containers and it worked. I don't understand what else is expected after unit tests.
   - [x] Linters (flake8, pylint) and code formatter (black) are used
   - [x] There are a lot of makefiles ([makefile for project](Makefile), [makefiles for services](makefiles))
   - [x] There are [pre-commit hooks](.pre-commit-config.yaml) for quality checks
-  - [x] There's a [CI/CD pipeline](.github/workflows/test.yaml): `build_dev_image` builds and pushes dev image to dockerhub (CD), `run_unit_tests` runs unit tests and computes code coverage from builded image (CI), `build_conda_pack` builds conda environment for Triton Inference server and returns archive as artifact (CD)
+  - [x] There's a [CI/CD pipeline](.github/workflows/test.yaml): `build_dev_image` builds and pushes `audioprocessor_dev` image to dockerhub (CD), `run_unit_tests` runs unit tests and computes code coverage from builded image (CI), `build_conda_pack` builds conda environment for Triton Inference server and returns archive as artifact (CD)

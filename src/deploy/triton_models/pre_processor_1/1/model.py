@@ -5,8 +5,9 @@ from typing import Dict, List, Text, Tuple
 
 import c_python_backend_utils as c_pb_utils
 import numpy as np
-import preprocessing.utils as utils
 import triton_python_backend_utils as pb_utils
+
+import preprocessing.utils as utils
 from preprocessing.feature_extractor import run_feature_extraction_in_parallel
 
 RAW_BUCKET = os.getenv("S3_CLIENT_RAW_BUCKET", "raw-client")
